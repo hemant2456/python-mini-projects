@@ -2,48 +2,52 @@
 import time
 from calendar import isleap
 
-# judge the leap year
+# Judge if it's a leap year
 def judge_leap_year(year):
-    if isleap(year):
-        return True
-    else:
-        return False
+    return isleap(year)
 
-
-# returns the number of days in each month
-def month_days(month, leap_year):
+# Return number of days in a month
+def month_days(month, year):
     if month in [1, 3, 5, 7, 8, 10, 12]:
         return 31
     elif month in [4, 6, 9, 11]:
         return 30
-    elif month == 2 and leap_year:
-        return 29
-    elif month == 2 and (not leap_year):
-        return 28
+    elif month == 2:
+        return 29 if judge_leap_year(year) else 28
 
+# Input
+name = input("Input your name: ")
+try:
+    age = int(input("Input your age in years: "))
+except ValueError:
+    print("Invalid age input.")
+    exit()
 
-name = input("input your name: ")
-age = input("input your age: ")
-localtime = time.localtime(time.time())
+# Get current date
+localtime = time.localtime()
+current_year = localtime.tm_year
+current_month = localtime.tm_mon
+current_day = localtime.tm_mday
 
-year = int(age)
-month = year * 12 + localtime.tm_mon
-day = 0
+# Calculate birth year
+birth_year = current_year - age
 
-begin_year = int(localtime.tm_year) - year
-end_year = begin_year + year
+# Total months
+total_months = age * 12 + current_month
 
-# calculate the days
-for y in range(begin_year, end_year):
-    if (judge_leap_year(y)):
-        day = day + 366
-    else:
-        day = day + 365
+# Total days
+total_days = 0
 
-leap_year = judge_leap_year(localtime.tm_year)
-for m in range(1, localtime.tm_mon):
-    day = day + month_days(m, leap_year)
+# Add full years' days
+for year in range(birth_year, current_year):
+    total_days += 366 if judge_leap_year(year) else 365
 
-day = day + localtime.tm_mday
-print("%s's age is %d years or " % (name, year), end="")
-print("%d months or %d days" % (month, day))
+# Add months of current year
+for month in range(1, current_month):
+    total_days += month_days(month, current_year)
+
+# Add current month days
+total_days += current_day
+
+# Output
+print(f"{name}'s age is {age} years or {total_months} months or {total_days} days.")
